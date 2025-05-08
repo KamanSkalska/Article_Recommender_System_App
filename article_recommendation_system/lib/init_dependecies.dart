@@ -1,5 +1,8 @@
 import 'package:article_recommendation_system/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:article_recommendation_system/core/secrets/app_secrets.dart';
+import 'package:article_recommendation_system/features/articles/data/repositories/article_repository_impl.dart';
+import 'package:article_recommendation_system/features/articles/domain/dbHelper/connect.dart';
+import 'package:article_recommendation_system/features/articles/domain/repositories/article_repository.dart';
 import 'package:article_recommendation_system/features/auth/data/datasources/supabase_database.dart';
 import 'package:article_recommendation_system/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:article_recommendation_system/features/auth/domain/repository/auth_repository.dart';
@@ -15,6 +18,7 @@ final serviceLocator = GetIt.instance;
 
 Future<void> initDependcies() async {
   _initAuth();
+  _initArticle();
   final supabase = await Supabase.initialize(
     url: AppSecrets.supabaseUrl,
     anonKey: AppSecrets.supabaseAnonKey,
@@ -40,4 +44,12 @@ void _initAuth() {
           currentUser: serviceLocator(),
           appUserCubit: serviceLocator(),
         ));
+}
+
+void _initArticle() {
+  serviceLocator
+    ..registerFactory<ArticleRemoteDataSouce>(
+        () => ArticleRemoteDataSouceImpl(serviceLocator()))
+    ..registerFactory<ArticleRepository>(
+        () => ArticleRepositoryImpl(serviceLocator()));
 }
