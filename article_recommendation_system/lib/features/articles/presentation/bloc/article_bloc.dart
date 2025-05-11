@@ -1,20 +1,33 @@
 import 'dart:io';
 
-import 'package:article_recommendation_system/features/articles/domain/usecases/upload_article.dart';
+import 'package:article_recommendation_system/core/common/entities/user_tag.dart';
+import 'package:article_recommendation_system/core/usecase/usecase.dart';
+import 'package:article_recommendation_system/features/articles/domain/usecases/download_user_tags.dart';
+//import 'package:article_recommendation_system/features/articles/domain/usecases/upload_article.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'article_event.dart';
 part 'article_state.dart';
 
-class ArticleBloc extends Bloc<ArticleEvent, ArticleState> {
-  final UploadArticle uploadArticle;
-  ArticleBloc(this.uploadArticle) : super(ArticleInitial()) {
-    on<ArticleEvent>((event, emit) => emit(ArticleLoading()));
-    on<ArticleUpload>(_onArticleUpload);
+class UserTagBloc extends Bloc<UserTagEvent, UserTagState> {
+  //final UploadArticle _uploadArticle;
+  final DownloadUserTags _downloadUserTags;
+
+  UserTagBloc({
+    //required UploadArticle uploadArticle,
+    required DownloadUserTags downloadUserTags,
+  })  :
+        //_uploadArticle = uploadArticle,
+        _downloadUserTags = downloadUserTags,
+        super(ArticleInitial()) {
+    on<UserTagEvent>((event, emit) => emit(ArticleLoading()));
+    // on<ArticleUpload>(_onArticleUpload);
+    on<FetchDownloadUserTags>(_onFetchDownloadUserTags);
   }
-  void _onArticleUpload(ArticleUpload event, Emitter<ArticleState> emit) async {
-    final res = await uploadArticle(UploadArticleParams(
+
+  /* void _onArticleUpload(ArticleUpload event, Emitter<UserTagState> emit) async {
+    final res = await _uploadArticle(UploadArticleParams(
         image: event.image,
         title: event.title,
         postedId: event.postedId,
@@ -22,7 +35,17 @@ class ArticleBloc extends Bloc<ArticleEvent, ArticleState> {
         date: event.date,
         description: event.description,
         tags: event.tags));
-    res.fold(
-        (l) => emit(ArticleFailure(l.message)), (r) => emit(ArticleSuccess()));
+    res.fold((l) => emit(ArticleFailure(l.message)),
+        (r) => emit(ArticleUploadSuccess()));
+  }
+*/
+  void _onFetchDownloadUserTags(
+    FetchDownloadUserTags event,
+    Emitter<UserTagState> emit,
+  ) async {
+    final res = await _downloadUserTags(NoParams());
+
+    res.fold((l) => emit(ArticleFailure(l.message)),
+        (r) => ArticleDisplaySuccess(r));
   }
 }

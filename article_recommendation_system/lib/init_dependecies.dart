@@ -1,8 +1,13 @@
 import 'package:article_recommendation_system/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:article_recommendation_system/core/secrets/app_secrets.dart';
+import 'package:article_recommendation_system/features/articles/data/datasource/supabase_database_tags.dart';
 import 'package:article_recommendation_system/features/articles/data/repositories/article_repository_impl.dart';
-import 'package:article_recommendation_system/features/articles/domain/dbHelper/connect.dart';
+import 'package:article_recommendation_system/features/articles/data/repositories/user_with_tags_repository_impl.dart';
 import 'package:article_recommendation_system/features/articles/domain/repositories/article_repository.dart';
+import 'package:article_recommendation_system/features/articles/domain/repositories/user_tag_repository.dart';
+import 'package:article_recommendation_system/features/articles/domain/usecases/download_user_tags.dart';
+import 'package:article_recommendation_system/features/articles/domain/usecases/upload_article.dart';
+import 'package:article_recommendation_system/features/articles/presentation/bloc/article_bloc.dart';
 import 'package:article_recommendation_system/features/auth/data/datasources/supabase_database.dart';
 import 'package:article_recommendation_system/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:article_recommendation_system/features/auth/domain/repository/auth_repository.dart';
@@ -48,8 +53,20 @@ void _initAuth() {
 
 void _initArticle() {
   serviceLocator
-    ..registerFactory<ArticleRemoteDataSouce>(
-        () => ArticleRemoteDataSouceImpl(serviceLocator()))
-    ..registerFactory<ArticleRepository>(
-        () => ArticleRepositoryImpl(serviceLocator()));
+    ..registerFactory<SupabaseDatabaseTags>(
+        () => SupabaseDatabaseTagsImpl(serviceLocator()))
+    // ..registerFactory<ArticleRepository>(
+    //    () => ArticleRepositoryImpl(serviceLocator()))
+    ..registerFactory<UserTagRepository>(
+        () => UserTagRepositoryImpl(serviceLocator()))
+    //  ..registerFactory(
+    //   () => UploadArticle(
+    //     serviceLocator(),
+    //   ),
+    // )
+    ..registerFactory(() => DownloadUserTags(serviceLocator()))
+    ..registerLazySingleton(() => UserTagBloc(
+          downloadUserTags: serviceLocator(),
+          //  uploadArticle: serviceLocator(),
+        ));
 }

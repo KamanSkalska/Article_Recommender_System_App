@@ -1,9 +1,9 @@
 part of 'article_bloc.dart';
 
 @immutable
-sealed class ArticleEvent {}
+sealed class UserTagEvent {}
 
-final class ArticleUpload extends ArticleEvent {
+final class ArticleUpload extends UserTagEvent {
   final File image;
   final String title;
   final String postedId;
@@ -21,3 +21,5 @@ final class ArticleUpload extends ArticleEvent {
       required this.description,
       required this.tags});
 }
+
+final class FetchDownloadUserTags extends UserTagEvent {}
