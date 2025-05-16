@@ -1,5 +1,5 @@
 import 'package:article_recommendation_system/core/error/exceptions.dart';
-import 'package:article_recommendation_system/features/auth/data/models/model.dart';
+import 'package:article_recommendation_system/core/common/entities/models/model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class SupabaseDatabase {

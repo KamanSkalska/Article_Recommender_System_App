@@ -57,7 +57,7 @@ class _ArticlePageState extends State<ArticlePage> {
             return ListView.builder(
               itemCount: userTags.length,
               itemBuilder: (context, index) {
-                final tagName = userTags[index].tagName ?? 'Unknown';
+                final tagName = userTags[index].tagType ?? 'Unknown';
                 return ListTile(
                   leading: const Icon(Icons.label),
                   title: Text(tagName),

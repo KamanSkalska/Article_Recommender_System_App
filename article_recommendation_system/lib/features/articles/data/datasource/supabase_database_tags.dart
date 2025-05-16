@@ -1,6 +1,6 @@
 import 'package:article_recommendation_system/core/error/exceptions.dart';
 import 'package:article_recommendation_system/features/articles/data/models/user_tag_model.dart';
-import 'package:article_recommendation_system/features/auth/data/models/model.dart';
+import 'package:article_recommendation_system/core/common/entities/models/model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class SupabaseDatabaseTags {
@@ -11,6 +11,8 @@ abstract interface class SupabaseDatabaseTags {
     required String password,
   });
   Future<List<UserTagModel>> downloadUserTags();
+
+  Future<String?> getTagIdByType(String tagType);
 
   Future<UserModel?> getCurrentUserData();
 }
@@ -42,30 +44,52 @@ class SupabaseDatabaseTagsImpl implements SupabaseDatabaseTags {
   @override
   Future<List<UserTagModel>> downloadUserTags() async {
     try {
-      final tags =
-          await supabaseClient.from('user_tags').select('*,tags(type)');
-      return tags
-          .map((tag) => UserTagModel.fromJSon(tag).copyWith(
-                tagName: tag['tags']['type'],
-              ))
-          .toList();
-    } catch (e) {
-      throw ServerException(e.toString());
-    }
-    /*
       if (currentUserSession != null) {
-        final tagData = await supabaseClient
+        final userId = currentUserSession!.user.id;
+
+        final response = await supabaseClient
             .from('user_tags')
-            .select()
-            .eq('user_id', currentUserSession!.user.id);
-        print(tagData);
-        return UserTagModel.fromJSon(tagData.first);
+            .select('id, user_id, tag_id, tags(id, type)')
+            .eq('user_id', userId);
+
+        final List<Map<String, dynamic>> nullList = [];
+
+        final userTags = response.map((tag) {
+          final tagData = tag['tags'];
+          final tagType = tagData?['type'] as String?;
+
+          if (tagData == null || tagType == null) {
+            nullList.add(tag);
+          }
+
+          return UserTagModel.fromJSon(tag).copyWith(tagType: tagType);
+        }).toList();
+        return userTags;
       }
-      return null;
+
+      return [];
     } catch (e) {
       throw ServerException(e.toString());
     }
-  }*/
+  }
+
+  @override
+  Future<String?> getTagIdByType(String tagType) async {
+    try {
+      final response = await supabaseClient
+          .from('tags')
+          .select('id')
+          .eq('type', tagType)
+          .limit(1);
+      if (response.isNotEmpty) {
+        return response.first['id'] as String;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      throw ServerException(
+          'Failed to get tagId for type $tagType: ${e.toString()}');
+    }
   }
 
   @override

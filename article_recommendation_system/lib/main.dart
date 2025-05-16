@@ -1,7 +1,11 @@
 import 'package:article_recommendation_system/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:article_recommendation_system/core/theme/theme.dart';
+import 'package:article_recommendation_system/features/articles/data/repositories/user_with_tags_repository_impl.dart';
+import 'package:article_recommendation_system/features/articles/domain/repositories/user_tag_repository.dart';
 import 'package:article_recommendation_system/features/articles/presentation/bloc/article_bloc.dart';
 import 'package:article_recommendation_system/features/articles/presentation/pages/article_page.dart';
+import 'package:article_recommendation_system/features/articles/presentation/pages/form/form_page_one.dart';
+import 'package:article_recommendation_system/features/articles/presentation/pages/form/form_page_two.dart';
 import 'package:article_recommendation_system/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:article_recommendation_system/features/auth/presentation/pages/login_page.dart';
 import 'package:article_recommendation_system/init_dependecies.dart';
@@ -20,7 +24,7 @@ void main() async {
     BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
     BlocProvider(
       create: (_) => serviceLocator<UserTagBloc>(),
-    )
+    ),
   ], child: const MyApp()));
 }
 
@@ -50,7 +54,7 @@ class _MyAppState extends State<MyApp> {
         },
         builder: (context, isLoggedIn) {
           if (isLoggedIn) {
-            return const ArticlePage();
+            return const FormPageOne();
           }
           return const LogInPage();
         },

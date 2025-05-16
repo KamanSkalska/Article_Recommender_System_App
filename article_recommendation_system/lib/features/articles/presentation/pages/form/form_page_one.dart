@@ -1,7 +1,11 @@
 import 'package:article_recommendation_system/core/theme/widgets_themes.dart';
 import 'package:article_recommendation_system/features/articles/data/tags/tags_mapping_to_form.dart';
+import 'package:article_recommendation_system/features/articles/domain/repositories/user_tag_repository.dart';
+import 'package:article_recommendation_system/features/auth/data/datasources/supabase_database.dart';
+import 'package:article_recommendation_system/core/common/entities/models/model.dart';
+import 'package:article_recommendation_system/init_dependecies.dart';
 import 'package:flutter/material.dart';
-//import '../form_page_two.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FormPageOne extends StatefulWidget {
   const FormPageOne({super.key});
@@ -11,9 +15,12 @@ class FormPageOne extends StatefulWidget {
 }
 
 class _FormPageOneState extends State<FormPageOne> {
+  late UserModel currentUser;
+  UserModel? currentUserModel;
   String? selectedMusic;
   String? selectedFilm;
   String? selectedSpending;
+  late final UserTagRepository _userTagRepository;
 
   final List<String> musicOptions = [
     formTags['tag_slow_fast'] ?? 'Slow songs or fast songs',
@@ -62,6 +69,23 @@ class _FormPageOneState extends State<FormPageOne> {
     formTags['tag_health_spending'] ?? 'Spending on healthy eating',
   ];
 
+  final List<String> selectedTags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _userTagRepository = serviceLocator<UserTagRepository>();
+    _loadCurrentUser();
+  }
+
+  void _loadCurrentUser() async {
+    final db = serviceLocator<SupabaseDatabase>();
+    final user = await db.getCurrentUserData();
+    setState(() {
+      currentUser = user!;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,6 +107,9 @@ class _FormPageOneState extends State<FormPageOne> {
               items: musicOptions,
               onChanged: (value) {
                 setState(() {
+                  if (value != null) {
+                    selectedTags.add(findKey(value));
+                  }
                   selectedMusic = value;
                 });
               },
@@ -94,6 +121,9 @@ class _FormPageOneState extends State<FormPageOne> {
               items: filmOptions,
               onChanged: (value) {
                 setState(() {
+                  if (value != null) {
+                    selectedTags.add(findKey(value));
+                  }
                   selectedFilm = value;
                 });
               },
@@ -105,16 +135,38 @@ class _FormPageOneState extends State<FormPageOne> {
               items: spendingOptions,
               onChanged: (value) {
                 setState(() {
+                  if (value != null) {
+                    selectedTags.add(findKey(value));
+                  }
                   selectedSpending = value;
                 });
               },
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () {
-                print('Music: $selectedMusic');
-                print('Film: $selectedFilm');
-                print('Spending: $selectedSpending');
+              onPressed: () async {
+                setState(() {
+                  _userTagRepository.updateUserList(currentUser, selectedTags);
+                });
+
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text('Your Selected Tags'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: currentUser.userTags!
+                          .map((tag) => Text('- ${tag.tagType}'))
+                          .toList(),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
               },
               style: NextButton(context),
               child: const Text('Next'),
@@ -152,4 +204,12 @@ class _FormPageOneState extends State<FormPageOne> {
       ],
     );
   }
+}
+
+String findKey(String value) {
+  final foundKey = formTags.entries
+      .firstWhere((entry) => entry.value == value,
+          orElse: () => const MapEntry('', ''))
+      .key;
+  return foundKey;
 }

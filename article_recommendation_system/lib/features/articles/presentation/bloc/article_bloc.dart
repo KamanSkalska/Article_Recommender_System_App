@@ -39,13 +39,17 @@ class UserTagBloc extends Bloc<UserTagEvent, UserTagState> {
         (r) => emit(ArticleUploadSuccess()));
   }
 */
+
   void _onFetchDownloadUserTags(
     FetchDownloadUserTags event,
     Emitter<UserTagState> emit,
   ) async {
+    emit(ArticleLoading());
     final res = await _downloadUserTags(NoParams());
 
-    res.fold((l) => emit(ArticleFailure(l.message)),
-        (r) => ArticleDisplaySuccess(r));
+    res.fold(
+      (l) => emit(ArticleFailure(l.message)),
+      (r) => emit(ArticleDisplaySuccess(r)),
+    );
   }
 }

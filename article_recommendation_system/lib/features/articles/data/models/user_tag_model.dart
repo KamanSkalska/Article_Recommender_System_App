@@ -5,7 +5,7 @@ class UserTagModel extends UserTag {
       {required super.id,
       required super.userId,
       required super.tagId,
-      super.tagName});
+      super.tagType});
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -18,8 +18,8 @@ class UserTagModel extends UserTag {
   factory UserTagModel.fromJSon(Map<String, dynamic> map) {
     return UserTagModel(
       id: map['id'] as String,
-      userId: map['userId'] as String,
-      tagId: map['tagId'] as String,
+      userId: map['user_id'] as String,
+      tagId: map['tag_id'] as String,
     );
   }
 
@@ -27,13 +27,13 @@ class UserTagModel extends UserTag {
     String? id,
     String? userId,
     String? tagId,
-    String? tagName,
+    String? tagType,
   }) {
     return UserTagModel(
       id: id ?? this.id,
       userId: userId ?? this.userId,
       tagId: tagId ?? this.tagId,
-      tagName: tagName ?? this.tagName,
+      tagType: tagType ?? this.tagType,
     );
   }
 }

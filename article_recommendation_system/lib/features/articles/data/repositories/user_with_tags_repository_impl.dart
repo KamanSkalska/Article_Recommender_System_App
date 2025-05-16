@@ -1,3 +1,4 @@
+import 'package:article_recommendation_system/core/common/entities/models/model.dart';
 import 'package:article_recommendation_system/core/common/entities/user_tag.dart';
 import 'package:article_recommendation_system/core/error/exceptions.dart';
 import 'package:article_recommendation_system/core/error/failures.dart';
@@ -35,10 +36,13 @@ class UserTagRepositoryImpl implements UserTagRepository {
   }
 
   @override
-  Future<Either<Failure, UserTag>> uploadUserTags(
-      {required String userId, required String tagId}) {
-    // TODO: implement uploadUserTags
-    throw UnimplementedError();
+  Future<Either<Failure, String?>> getTagIdByType(String tagType) async {
+    try {
+      final tags = await tagRemoteDataSource.getTagIdByType(tagType);
+      return right(tags);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
   }
 
   Future<Either<Failure, UserTag>> _getUserTags(
@@ -51,6 +55,26 @@ class UserTagRepositoryImpl implements UserTagRepository {
       return left(Failure(e.message));
     } on ServerException catch (e) {
       return left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserTag>> updateUserTags() {
+    // TODO: implement updateUserTags
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateUserList(UserModel user, List<String> tagNames) async {
+    user.userTags ??= [];
+    for (var tagName in tagNames) {
+      if (!user.userTags!.any((userTag) => userTag.tagType == tagName)) {
+        final tagId = await tagRemoteDataSource.getTagIdByType(tagName);
+        if (tagId != null) {
+          user.userTags!
+              .add(UserTag(userId: user.id, tagId: tagId, tagType: tagName));
+        }
+      }
     }
   }
 }
