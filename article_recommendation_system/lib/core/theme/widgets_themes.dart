@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_pallete.dart'; // Update this with the correct import for your AppPallete class
 
 // Function to get the ElevatedButton style
-ButtonStyle NextButton(BuildContext context) {
+ButtonStyle nextButton(BuildContext context) {
   return ElevatedButton.styleFrom(
     backgroundColor: AppPallete.backgroundColor, // Background color
     foregroundColor: AppPallete.whiteColor, // Text color

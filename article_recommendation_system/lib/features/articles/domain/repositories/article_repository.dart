@@ -10,5 +10,8 @@ abstract interface class ArticleRepository {
       required String author,
       required String date,
       required String description,
-      required List<String> tags});
+      required List<String> tags,
+      required String body});
+
+  Future<Either<Failure, List<Article>>> getAllArticles();
 }

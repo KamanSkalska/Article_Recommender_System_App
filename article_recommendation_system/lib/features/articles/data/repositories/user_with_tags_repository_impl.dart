@@ -59,9 +59,24 @@ class UserTagRepositoryImpl implements UserTagRepository {
   }
 
   @override
-  Future<Either<Failure, UserTag>> updateUserTags() {
-    // TODO: implement updateUserTags
-    throw UnimplementedError();
+  Future<Either<Failure, void>> updateUserTags(UserModel currentUser) async {
+    try {
+      final userTags = currentUser.userTags;
+      if (userTags == null || userTags.isEmpty) {
+        return left(Failure('No user tags to update'));
+      }
+
+      for (final tag in userTags) {
+        await tagRemoteDataSource.insertUserTags(
+          userId: currentUser.id,
+          tagId: tag.tagId,
+        );
+      }
+
+      return right(null); // ✅ indicates success
+    } catch (e) {
+      return left(Failure('Failed to update user tags: ${e.toString()}'));
+    }
   }
 
   @override

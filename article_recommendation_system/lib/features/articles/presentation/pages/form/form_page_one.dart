@@ -1,13 +1,16 @@
 import 'package:article_recommendation_system/core/theme/widgets_themes.dart';
 import 'package:article_recommendation_system/features/articles/data/tags/tags_mapping_to_form.dart';
 import 'package:article_recommendation_system/features/articles/domain/repositories/user_tag_repository.dart';
+import 'package:article_recommendation_system/features/articles/presentation/pages/form/form_page_two.dart';
 import 'package:article_recommendation_system/features/auth/data/datasources/supabase_database.dart';
 import 'package:article_recommendation_system/core/common/entities/models/model.dart';
 import 'package:article_recommendation_system/init_dependecies.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FormPageOne extends StatefulWidget {
+  static route() => MaterialPageRoute(
+        builder: (context) => const FormPageOne(),
+      );
   const FormPageOne({super.key});
 
   @override
@@ -16,12 +19,13 @@ class FormPageOne extends StatefulWidget {
 
 class _FormPageOneState extends State<FormPageOne> {
   late UserModel currentUser;
-  UserModel? currentUserModel;
   String? selectedMusic;
   String? selectedFilm;
   String? selectedSpending;
+  String? selectedScare;
   late final UserTagRepository _userTagRepository;
 
+  //importing maps with choices
   final List<String> musicOptions = [
     formTags['tag_slow_fast'] ?? 'Slow songs or fast songs',
     formTags['tag_dance'] ?? 'Dance',
@@ -67,6 +71,20 @@ class _FormPageOneState extends State<FormPageOne> {
     formTags['tag_looks_spending'] ?? 'Spending on looks',
     formTags['tag_gadgets_spending'] ?? 'Spending on gadgets',
     formTags['tag_health_spending'] ?? 'Spending on healthy eating',
+  ];
+
+  final List<String> _scareOptions = [
+    formTags['tag_storm'] ?? 'Storm',
+    formTags['tag_darkness'] ?? 'Darkness',
+    formTags['tag_heights'] ?? 'Heights',
+    formTags['tag_spiders'] ?? 'Spiders',
+    formTags['tag_snakes'] ?? 'Snakes',
+    formTags['tag_rats'] ?? 'Rats',
+    formTags['tag_ageing'] ?? 'Ageing',
+    formTags['tag_dangerous_dogs'] ?? 'Dangerous dogs',
+    formTags['tag_public_speaking_fear'] ?? 'Fear of public speaking',
+    formTags['tag_smoking'] ?? 'Smoking',
+    formTags['tag_alcohol'] ?? 'Alcohol',
   ];
 
   final List<String> selectedTags = [];
@@ -142,33 +160,34 @@ class _FormPageOneState extends State<FormPageOne> {
                 });
               },
             ),
+            const SizedBox(height: 20),
+            buildDropdownQuestion(
+              question: 'What are you scared the most?',
+              value: selectedScare,
+              items: _scareOptions,
+              onChanged: (value) {
+                setState(() {
+                  if (value != null) {
+                    selectedTags.add(findKey(value));
+                  }
+                  selectedScare = value;
+                });
+              },
+            ),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () async {
                 setState(() {
                   _userTagRepository.updateUserList(currentUser, selectedTags);
                 });
-
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text('Your Selected Tags'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: currentUser.userTags!
-                          .map((tag) => Text('- ${tag.tagType}'))
-                          .toList(),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          FormPageTwo(currentUser: currentUser)),
                 );
               },
-              style: NextButton(context),
+              style: nextButton(context),
               child: const Text('Next'),
             ),
           ],

@@ -5,11 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class SupabaseDatabaseTags {
   Session? get currentUserSession;
-  Future<UserModel?> uploadUserTags({
-    required String name,
-    required String email,
-    required String password,
-  });
+  Future<void> insertUserTags({required String userId, required String tagId});
   Future<List<UserTagModel>> downloadUserTags();
 
   Future<String?> getTagIdByType(String tagType);
@@ -93,9 +89,17 @@ class SupabaseDatabaseTagsImpl implements SupabaseDatabaseTags {
   }
 
   @override
-  Future<UserModel?> uploadUserTags(
-      {required String name, required String email, required String password}) {
-    // TODO: implement uploadUserTags
-    throw UnimplementedError();
+  Future<void> insertUserTags({
+    required String userId,
+    required String tagId,
+  }) async {
+    try {
+      await supabaseClient.from('user_tags').insert({
+        'user_id': userId,
+        'tag_id': tagId,
+      });
+    } catch (e) {
+      throw ServerException('Error inserting user tag: ${e.toString()}');
+    }
   }
 }

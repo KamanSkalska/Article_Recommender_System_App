@@ -18,7 +18,8 @@ class UploadArticle implements UseCase<Article, UploadArticleParams> {
         author: params.author,
         date: params.date,
         description: params.description,
-        tags: params.tags);
+        tags: params.tags,
+        body: params.body);
   }
 }
 
@@ -30,6 +31,7 @@ class UploadArticleParams {
   final String date;
   final String description;
   final List<String> tags;
+  final String body;
 
   UploadArticleParams(
       {required this.image,
@@ -38,5 +40,6 @@ class UploadArticleParams {
       required this.author,
       required this.date,
       required this.description,
-      required this.tags});
+      required this.tags,
+      required this.body});
 }

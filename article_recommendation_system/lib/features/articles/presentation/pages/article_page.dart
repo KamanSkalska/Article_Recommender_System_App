@@ -1,3 +1,4 @@
+/*
 import 'package:article_recommendation_system/core/common/widgets/loader.dart';
 import 'package:article_recommendation_system/core/utils/show_snackbar.dart';
 import 'package:article_recommendation_system/features/articles/presentation/bloc/article_bloc.dart';
@@ -71,3 +72,5 @@ class _ArticlePageState extends State<ArticlePage> {
     );
   }
 }
+
+*/

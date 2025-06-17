@@ -6,7 +6,7 @@ import 'package:article_recommendation_system/core/common/entities/user.dart';
 import 'package:fpdart/fpdart.dart';
 
 abstract interface class UserTagRepository {
-  Future<Either<Failure, UserTag>> updateUserTags();
+  Future<Either<Failure, void>> updateUserTags(UserModel user);
 
   Future<Either<Failure, List<UserTag>>> downloadUserTags();
 

@@ -1,42 +1,60 @@
+import 'package:article_recommendation_system/core/common/entities/models/model.dart';
 import 'package:article_recommendation_system/core/theme/app_pallete.dart';
 import 'package:article_recommendation_system/core/theme/widgets_themes.dart';
+import 'package:article_recommendation_system/features/articles/data/tags/tags_mapping_to_form.dart';
+import 'package:article_recommendation_system/features/articles/domain/repositories/user_tag_repository.dart';
+import 'package:article_recommendation_system/features/articles/presentation/pages/form/form_page_one.dart';
+import 'package:article_recommendation_system/features/articles/presentation/pages/form/form_page_three.dart';
+import 'package:article_recommendation_system/init_dependecies.dart';
 import 'package:flutter/material.dart';
 
 class FormPageTwo extends StatefulWidget {
-  const FormPageTwo({super.key});
+  final UserModel currentUser;
+  const FormPageTwo({super.key, required this.currentUser});
 
   @override
   State<FormPageTwo> createState() => _FormPageTwoState();
 }
 
 class _FormPageTwoState extends State<FormPageTwo> {
-  final List<String> answers = [
-    'left handed',
-    'an only child',
-    'hypochondric',
-    'introvertic (lonely)',
-    'assertive',
-    'a cheater',
-    'heatlthy',
-    'part of a charity',
-    'an achiever',
-    'a workaholic',
-    'thinking ahead',
-    'keeping promises',
-    'happy in live',
-    'getting up early',
-    'unpopular',
-    'good in decision making',
+  late UserModel currentUser;
+  late final UserTagRepository _userTagRepository;
+
+  final List<String> _anwersOptions = [
+    formTags['tag_handedness'] ?? 'left handed',
+    formTags['tag_only_child'] ?? 'an only child',
+    formTags['tag_hypochondria'] ?? 'hypochondric',
+    formTags['tag_loneliness'] ?? 'introvertic (lonely)',
+    formTags['tag_assertiveness'] ?? 'assertive',
+    formTags['tag_cheating'] ?? 'a cheater',
+    formTags['tag_health'] ?? 'heatlthy',
+    formTags['tag_charity'] ?? 'part of a charity',
+    formTags['tag_achievements'] ?? 'an achiever',
+    formTags['tag_workaholism'] ?? 'a workaholic',
+    formTags['tag_thinking_ahead'] ?? 'thinking ahead',
+    formTags['tag_promises'] ?? 'keeping promises',
+    formTags['tag_happiness'] ?? 'happy in live',
+    formTags['tag_energy'] ?? 'getting up early',
+    formTags['tag_unpopularity'] ?? 'unpopular',
+    formTags['tag_decision_making'] ?? 'good in decision making',
   ];
 
-  Set<String> selectedAnswers = {};
+  List<String> selectedTags = [];
+  //fina List<String> selectedTags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _userTagRepository = serviceLocator<UserTagRepository>();
+    currentUser = widget.currentUser;
+  }
 
   void toggleSelection(String answer) {
     setState(() {
-      if (selectedAnswers.contains(answer)) {
-        selectedAnswers.remove(answer);
+      if (selectedTags.contains(answer)) {
+        selectedTags.remove(answer);
       } else {
-        selectedAnswers.add(answer);
+        selectedTags.add(findKey(answer));
       }
     });
   }
@@ -65,8 +83,8 @@ class _FormPageTwoState extends State<FormPageTwo> {
               spacing: 10,
               runSpacing: 10,
               alignment: WrapAlignment.center,
-              children: answers.map((answer) {
-                final isSelected = selectedAnswers.contains(answer);
+              children: _anwersOptions.map((answer) {
+                final isSelected = selectedTags.contains(findKey(answer));
                 return ElevatedButton(
                   onPressed: () => toggleSelection(answer),
                   style: answerButtonStyle(isSelected: isSelected),
@@ -77,11 +95,19 @@ class _FormPageTwoState extends State<FormPageTwo> {
             const Spacer(),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  print('Selected answers: $selectedAnswers');
-                  // Navigate to next form page or process data
+                onPressed: () async {
+                  setState(() {
+                    _userTagRepository.updateUserList(
+                        currentUser, selectedTags);
+                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            FormPageThree(currentUser: currentUser)),
+                  );
                 },
-                style: NextButton(context),
+                style: nextButton(context),
                 child: const Text('Next'),
               ),
             ),
